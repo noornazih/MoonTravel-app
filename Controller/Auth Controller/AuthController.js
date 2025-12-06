@@ -11,12 +11,17 @@ const signup = (req, res) => {
     const { username, email, password, role, hotelName, location } = req.body;
 
     if (!email || !password || !role) {
+        // Log failed signup
+        db.run(`INSERT INTO AuthLogs (userId, event, ip) VALUES (?, ?, ?)`,
+            [null, "signup_failure", req.ip]);
         return res.status(400).json({ error: "Missing required fields", status: 400 });
     }
 
     bcrypt.hash(password, 10, (err, hashedPassword) => {
         if (err) {
             console.log(err);
+            db.run(`INSERT INTO AuthLogs (userId, event, ip) VALUES (?, ?, ?)`,
+                [null, "signup_failure", req.ip]);
             return res.status(500).json({ error: "Error hashing password" });
         }
 
@@ -28,11 +33,17 @@ const signup = (req, res) => {
             db.run(query, params, function (err) {
                 if (err) {
                     console.log(err);
+                    db.run(`INSERT INTO AuthLogs (userId, event, ip) VALUES (?, ?, ?)`,
+                        [null, "signup_failure", req.ip]);
                     if (err.message.includes("UNIQUE constraint failed")) {
                         return res.status(409).json({ error: "Email already exists", status: 409 });
                     }
                     return res.status(500).json({ error: "Error creating user" });
                 }
+
+                // Log successful signup
+                db.run(`INSERT INTO AuthLogs (userId, event, ip) VALUES (?, ?, ?)`,
+                    [this.lastID, "signup_success", req.ip]);
 
                 const message = role === 'admin' ? "Admin account created internally" : "User registered successfully!";
                 return res.status(201).json({ message, userId: this.lastID, role });
@@ -42,6 +53,8 @@ const signup = (req, res) => {
         // Hotel Manager
         else if (role === 'hotel_manager') {
             if (!hotelName || !location) {
+                db.run(`INSERT INTO AuthLogs (userId, event, ip) VALUES (?, ?, ?)`,
+                    [null, "signup_failure", req.ip]);
                 return res.status(400).json({ error: "Hotel name and location required", status: 400 });
             }
 
@@ -51,6 +64,8 @@ const signup = (req, res) => {
                 function (err) {
                     if (err) {
                         console.log(err);
+                        db.run(`INSERT INTO AuthLogs (userId, event, ip) VALUES (?, ?, ?)`,
+                            [null, "signup_failure", req.ip]);
                         if (err.message.includes("UNIQUE constraint failed")) {
                             return res.status(409).json({ error: "Email already exists", status: 409 });
                         }
@@ -64,8 +79,14 @@ const signup = (req, res) => {
                         function (err2) {
                             if (err2) {
                                 console.log(err2);
+                                db.run(`INSERT INTO AuthLogs (userId, event, ip) VALUES (?, ?, ?)`,
+                                    [userId, "signup_failure", req.ip]);
                                 return res.status(500).json({ error: "Error creating hotel record" });
                             }
+
+                            // Log successful signup
+                            db.run(`INSERT INTO AuthLogs (userId, event, ip) VALUES (?, ?, ?)`,
+                                [userId, "signup_success", req.ip]);
 
                             return res.status(201).json({
                                 message: "Hotel Manager created",
@@ -80,6 +101,8 @@ const signup = (req, res) => {
         }
 
         else {
+            db.run(`INSERT INTO AuthLogs (userId, event, ip) VALUES (?, ?, ?)`,
+                [null, "signup_failure", req.ip]);
             return res.status(400).json({ error: "Invalid role specified", status: 400 });
         }
     });
@@ -90,6 +113,8 @@ const login = (req, res) => {
     const { email, password, remember } = req.body;
 
     if (!email || !password) {
+        db.run(`INSERT INTO AuthLogs (userId, event, ip) VALUES (?, ?, ?)`,
+            [null, "login_failure", req.ip]);
         return res.status(400).json({ error: "Email and password are required", status: 400 });
     }
 
@@ -98,22 +123,34 @@ const login = (req, res) => {
     db.get(query, [email], (err, row) => {
         if (err) {
             console.log(err);
+            db.run(`INSERT INTO AuthLogs (userId, event, ip) VALUES (?, ?, ?)`,
+                [null, "login_failure", req.ip]);
             return res.status(500).json({ error: "Error retrieving user" });
         }
         if (!row) {
+            db.run(`INSERT INTO AuthLogs (userId, event, ip) VALUES (?, ?, ?)`,
+                [null, "login_failure", req.ip]);
             return res.status(401).json({ error: "Invalid credentials", status: 401 });
         }
 
         bcrypt.compare(password, row.passwordHash, (err, result) => {
             if (err) {
                 console.log(err);
+                db.run(`INSERT INTO AuthLogs (userId, event, ip) VALUES (?, ?, ?)`,
+                    [row.userId, "login_failure", req.ip]);
                 return res.status(500).json({ error: "Error comparing passwords" });
             }
             if (!result) {
+                db.run(`INSERT INTO AuthLogs (userId, event, ip) VALUES (?, ?, ?)`,
+                    [row.userId, "login_failure", req.ip]);
                 return res.status(401).json({ error: "Invalid credentials", status: 401 });
             }
 
             const token = signToken(row.userId, row.role);
+
+            // Log successful login
+            db.run(`INSERT INTO AuthLogs (userId, event, ip) VALUES (?, ?, ?)`,
+                [row.userId, "login_success", req.ip]);
 
             // Set cookies as per CW report
             res.cookie('session_cookie', `session_${row.userId}`, {
