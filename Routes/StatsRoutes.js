@@ -1,5 +1,5 @@
 const express = require("express");
-const { RetrieveBookingStats, RetrieveRevenueStats } = require("../Controller/Hotel Controller/StatsController");
+const { RetrieveBookingStats, RetrieveRevenueStats } = require("../Controller/HotelController/StatsController");
 
 const router = express.Router();
 

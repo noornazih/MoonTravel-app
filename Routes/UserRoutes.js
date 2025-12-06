@@ -1,16 +1,20 @@
 const express = require("express");
+
+// ✅ Fix: match actual folder name with space
 const {
   RetrieveAllUsers,
   RetrieveUserById,
   UpdateUserById,
   ActivateUserById,
   DeactivateUserById
-} = require("../controller/UserController");
-const { authorizeRole } = require("../middleware/roleMiddleware");
+} = require("../Controller/UserController/UserManagementController.js");
+
+// ✅ Fix: match actual filename and folder
+const { authorizeRole } = require("../middleware/Rolemiddleware.js");
 
 const router = express.Router();
 
-// Admin-only access
+// ✅ Admin-only access
 router.get("/v1/users", authorizeRole(["admin"]), RetrieveAllUsers);
 router.get("/v1/users/:id", authorizeRole(["admin"]), RetrieveUserById);
 router.put("/v1/users/:id", authorizeRole(["admin"]), UpdateUserById);

@@ -1,6 +1,6 @@
 // routes/FlightsRouter.js
 const express = require("express");
-const { RetrieveFlightStatus, FilterFlights } = require("../Controller/Traveler Controller/FlightsController");
+const { RetrieveFlightStatus, FilterFlights } = require("../Controller/TravelerController/FlightsController");
 
 const router = express.Router();
 

@@ -1,6 +1,6 @@
 // routes/OffersRouter.js
 const express = require("express");
-const { RetrieveAllOffers, ApplyDiscountCode } = require("../Controller/Traveler Controller/OffersController");
+const { RetrieveAllOffers, ApplyDiscountCode } = require("../Controller/TravelerController/OffersController");
 
 const router = express.Router();
 

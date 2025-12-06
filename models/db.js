@@ -1,5 +1,7 @@
-const sqlite = require('sqlite3');
-const db = new sqlite.Database('travel.db');
+const sqlite3 = require("sqlite3").verbose();
+
+// Create or connect to your SQLite database file
+const db = new sqlite3.Database("travel.db");
 
 // Traveler, Hotel Manager, Admin
 const CreateUsersTable = `CREATE TABLE IF NOT EXISTS Users (
@@ -106,22 +108,24 @@ const CreateAuthLogsTable = `CREATE TABLE IF NOT EXISTS AuthLogs (
     FOREIGN KEY(userId) REFERENCES Users(userId)
 )`;
 
-// Booking Statistics (optional view or query-based)
+// Booking Statistics (view)
 const CreateStatsView = `CREATE VIEW IF NOT EXISTS BookingStats AS
 SELECT hotelId, COUNT(*) AS totalBookings
 FROM Reservations
 GROUP BY hotelId`;
 
-module.exports = {
-    db,
-    CreateUsersTable,
-    CreateHotelsTable,
-    CreateFlightsTable,
-    CreateBookingsTable,
-    CreatePaymentsTable,
-    CreateOffersTable,
-    CreateReviewsTable,
-    CreateReservationsTable,
-    CreateAuthLogsTable,
-    CreateStatsView
-};
+// ✅ Run all table creation queries once when the app starts
+db.serialize(() => {
+    db.run(CreateUsersTable);
+    db.run(CreateHotelsTable);
+    db.run(CreateFlightsTable);
+    db.run(CreateBookingsTable);
+    db.run(CreatePaymentsTable);
+    db.run(CreateOffersTable);
+    db.run(CreateReviewsTable);
+    db.run(CreateReservationsTable);
+    db.run(CreateAuthLogsTable);
+    db.run(CreateStatsView);
+});
+
+module.exports = { db };
