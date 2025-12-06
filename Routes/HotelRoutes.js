@@ -4,7 +4,7 @@ const {
   RetrieveHotelById,
   UpdateHotelDetails,
   UpdateRoomAvailability
-} = require("../Controller/TravelerController/HotelsController");
+} = require("../controller/TravelerController/HotelsController");
 
 const router = express.Router();
 

@@ -1,6 +1,6 @@
 // routes/BookingsRouter.js
 const express = require("express");
-const { RetrieveBookingHistory, CancelBookingById } = require("../Controller/TravelerController/BookingsController");
+const { RetrieveBookingHistory, CancelBookingById } = require("../controller/TravelerController/BookingsController");
 
 const router = express.Router();
 

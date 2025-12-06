@@ -10,15 +10,15 @@ app.use(cookieParser());
 app.use(express.json());
 
 // Routers
-const UserRoutes = require("./Routes/UserRoutes.js");
-const AuthRoutes = require("./Routes/AuthRoutes.js");
-const HotelRoutes = require("./Routes/HotelRoutes.js");
-const BookingsRoutes = require("./Routes/BookingsRoutes.js");
-const PaymentsRoutes = require("./Routes/PaymentsRoutes.js");
-const OffersRoutes = require("./Routes/OffersRoutes.js");
-const ReviewsRoutes = require("./Routes/ReviewsRoutes.js");
-const FlightsRoutes = require("./Routes/FlightsRoutes.js");
-const ReservationsRoutes = require("./Routes/ReservationsRoutes.js");
+const UserRoutes = require("./routes/UserRoutes.js");
+const AuthRoutes = require("./routes/AuthRoutes.js");
+const HotelRoutes = require("./routes/HotelRoutes.js");
+const BookingsRoutes = require("./routes/BookingsRoutes.js");
+const PaymentsRoutes = require("./routes/PaymentsRoutes.js");
+const OffersRoutes = require("./routes/OffersRoutes.js");
+const ReviewsRoutes = require("./routes/ReviewsRoutes.js");
+const FlightsRoutes = require("./routes/FlightsRoutes.js");
+const ReservationsRoutes = require("./routes/ReservationsRoutes.js");
 
 // Route mounting
 app.use("/users", UserRoutes);

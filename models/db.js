@@ -1,12 +1,20 @@
 const sqlite3 = require("sqlite3").verbose();
+const path = require("path");
 
 // Create or connect to your SQLite database file
-const db = new sqlite3.Database("travel.db");
+const dbPath = path.resolve(__dirname, "../travel.db");
+const db = new sqlite3.Database(dbPath, (err) => {
+  if (err) {
+    console.error("Error opening database:", err.message);
+  } else {
+    console.log("Connected to SQLite database at", dbPath);
+  }
+});
 
 // Traveler, Hotel Manager, Admin
-const CreateUsersTable = `CREATE TABLE IF NOT EXISTS Users (
+const CreateUsersTable = `CREATE TABLE IF NOT EXISTS users (
     userId INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
+    username TEXT NOT NULL,
     email TEXT NOT NULL UNIQUE,
     passwordHash TEXT NOT NULL,
     role TEXT NOT NULL,
@@ -14,7 +22,7 @@ const CreateUsersTable = `CREATE TABLE IF NOT EXISTS Users (
 )`;
 
 // Hotel listings
-const CreateHotelsTable = `CREATE TABLE IF NOT EXISTS Hotels (
+const CreateHotelsTable = `CREATE TABLE IF NOT EXISTS hotels (
     hotelId INTEGER PRIMARY KEY AUTOINCREMENT,
     hotelName TEXT NOT NULL,
     location TEXT NOT NULL,
@@ -23,11 +31,11 @@ const CreateHotelsTable = `CREATE TABLE IF NOT EXISTS Hotels (
     roomsAvailable INTEGER DEFAULT 0,
     description TEXT,
     amenities TEXT,
-    FOREIGN KEY(managerId) REFERENCES Users(userId)
+    FOREIGN KEY(managerId) REFERENCES users(userId)
 )`;
 
 // Flight listings
-const CreateFlightsTable = `CREATE TABLE IF NOT EXISTS Flights (
+const CreateFlightsTable = `CREATE TABLE IF NOT EXISTS flights (
     flightId INTEGER PRIMARY KEY AUTOINCREMENT,
     origin TEXT NOT NULL,
     destination TEXT NOT NULL,
@@ -38,20 +46,20 @@ const CreateFlightsTable = `CREATE TABLE IF NOT EXISTS Flights (
 )`;
 
 // Bookings
-const CreateBookingsTable = `CREATE TABLE IF NOT EXISTS Bookings (
+const CreateBookingsTable = `CREATE TABLE IF NOT EXISTS bookings (
     bookingId INTEGER PRIMARY KEY AUTOINCREMENT,
     userId INTEGER,
     hotelId INTEGER,
     flightId INTEGER,
     status TEXT DEFAULT 'pending',
     paymentId INTEGER,
-    FOREIGN KEY(userId) REFERENCES Users(userId),
-    FOREIGN KEY(hotelId) REFERENCES Hotels(hotelId),
-    FOREIGN KEY(flightId) REFERENCES Flights(flightId)
+    FOREIGN KEY(userId) REFERENCES users(userId),
+    FOREIGN KEY(hotelId) REFERENCES hotels(hotelId),
+    FOREIGN KEY(flightId) REFERENCES flights(flightId)
 )`;
 
-// Payments (extended with encryption fields)
-const CreatePaymentsTable = `CREATE TABLE IF NOT EXISTS Payments (
+// Payments
+const CreatePaymentsTable = `CREATE TABLE IF NOT EXISTS payments (
     paymentId INTEGER PRIMARY KEY AUTOINCREMENT,
     bookingId INTEGER,
     userId INTEGER,
@@ -61,12 +69,12 @@ const CreatePaymentsTable = `CREATE TABLE IF NOT EXISTS Payments (
     status TEXT DEFAULT 'confirmed',
     cardEncrypted TEXT,
     iv TEXT,
-    FOREIGN KEY(bookingId) REFERENCES Bookings(bookingId),
-    FOREIGN KEY(userId) REFERENCES Users(userId)
+    FOREIGN KEY(bookingId) REFERENCES bookings(bookingId),
+    FOREIGN KEY(userId) REFERENCES users(userId)
 )`;
 
 // Offers
-const CreateOffersTable = `CREATE TABLE IF NOT EXISTS Offers (
+const CreateOffersTable = `CREATE TABLE IF NOT EXISTS offers (
     offerId INTEGER PRIMARY KEY AUTOINCREMENT,
     code TEXT UNIQUE,
     discountPercent INTEGER,
@@ -74,19 +82,19 @@ const CreateOffersTable = `CREATE TABLE IF NOT EXISTS Offers (
 )`;
 
 // Reviews
-const CreateReviewsTable = `CREATE TABLE IF NOT EXISTS Reviews (
+const CreateReviewsTable = `CREATE TABLE IF NOT EXISTS reviews (
     reviewId INTEGER PRIMARY KEY AUTOINCREMENT,
     hotelId INTEGER,
     userId INTEGER,
     rating INTEGER,
     comment TEXT,
     createdAt TEXT DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY(hotelId) REFERENCES Hotels(hotelId),
-    FOREIGN KEY(userId) REFERENCES Users(userId)
+    FOREIGN KEY(hotelId) REFERENCES hotels(hotelId),
+    FOREIGN KEY(userId) REFERENCES users(userId)
 )`;
 
 // Reservations
-const CreateReservationsTable = `CREATE TABLE IF NOT EXISTS Reservations (
+const CreateReservationsTable = `CREATE TABLE IF NOT EXISTS reservations (
     reservationId INTEGER PRIMARY KEY AUTOINCREMENT,
     userId INTEGER,
     hotelId INTEGER,
@@ -94,38 +102,37 @@ const CreateReservationsTable = `CREATE TABLE IF NOT EXISTS Reservations (
     checkOut TEXT,
     specialRequests TEXT,
     status TEXT DEFAULT 'pending',
-    FOREIGN KEY(userId) REFERENCES Users(userId),
-    FOREIGN KEY(hotelId) REFERENCES Hotels(hotelId)
+    FOREIGN KEY(userId) REFERENCES users(userId),
+    FOREIGN KEY(hotelId) REFERENCES hotels(hotelId)
 )`;
 
 // Authentication Logs
-const CreateAuthLogsTable = `CREATE TABLE IF NOT EXISTS AuthLogs (
+const CreateAuthLogsTable = `CREATE TABLE IF NOT EXISTS authLogs (
     logId INTEGER PRIMARY KEY AUTOINCREMENT,
     userId INTEGER,
     event TEXT,
     ip TEXT,
     timestamp TEXT DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY(userId) REFERENCES Users(userId)
+    FOREIGN KEY(userId) REFERENCES users(userId)
 )`;
 
 // Booking Statistics (view)
-const CreateStatsView = `CREATE VIEW IF NOT EXISTS BookingStats AS
+const CreateStatsView = `CREATE VIEW IF NOT EXISTS bookingStats AS
 SELECT hotelId, COUNT(*) AS totalBookings
-FROM Reservations
+FROM reservations
 GROUP BY hotelId`;
 
-// ✅ Run all table creation queries once when the app starts
 db.serialize(() => {
-    db.run(CreateUsersTable);
-    db.run(CreateHotelsTable);
-    db.run(CreateFlightsTable);
-    db.run(CreateBookingsTable);
-    db.run(CreatePaymentsTable);
-    db.run(CreateOffersTable);
-    db.run(CreateReviewsTable);
-    db.run(CreateReservationsTable);
-    db.run(CreateAuthLogsTable);
-    db.run(CreateStatsView);
+  db.run(CreateUsersTable);
+  db.run(CreateHotelsTable);
+  db.run(CreateFlightsTable);
+  db.run(CreateBookingsTable);
+  db.run(CreatePaymentsTable);
+  db.run(CreateOffersTable);
+  db.run(CreateReviewsTable);
+  db.run(CreateReservationsTable);
+  db.run(CreateAuthLogsTable);
+  db.run(CreateStatsView);
 });
 
-module.exports = { db };
+module.exports = db;

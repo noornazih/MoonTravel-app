@@ -1,6 +1,6 @@
 // routes/ReviewsRouter.js
 const express = require("express");
-const { RetrieveReviewsByHotelId } = require("../Controller/TravelerController/ReviewsController");
+const { RetrieveReviewsByHotelId } = require("../controller/TravelerController/ReviewsController");
 
 const router = express.Router();
 

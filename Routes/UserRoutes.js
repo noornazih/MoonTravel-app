@@ -7,7 +7,7 @@ const {
   UpdateUserById,
   ActivateUserById,
   DeactivateUserById
-} = require("../Controller/UserController/UserManagementController.js");
+} = require("../controller/UserController/UserManagementController.js");
 
 // ✅ Fix: match actual filename and folder
 const { authorizeRole } = require("../middleware/Rolemiddleware.js");

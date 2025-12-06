@@ -3,7 +3,7 @@ const {
     RetrieveAllReservations, 
     ValidateReservationById, 
     UpdateReservationStatus 
-} = require("../Controller/HotelController/ReservationsController");
+} = require("../controller/HotelController/ReservationsController");
 
 const router = express.Router();
 
