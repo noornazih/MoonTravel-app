@@ -48,7 +48,7 @@ const CreateBookingsTable = `CREATE TABLE IF NOT EXISTS Bookings (
     FOREIGN KEY(flightId) REFERENCES Flights(flightId)
 )`;
 
-// Payments
+// Payments (extended with encryption fields)
 const CreatePaymentsTable = `CREATE TABLE IF NOT EXISTS Payments (
     paymentId INTEGER PRIMARY KEY AUTOINCREMENT,
     bookingId INTEGER,
@@ -57,6 +57,8 @@ const CreatePaymentsTable = `CREATE TABLE IF NOT EXISTS Payments (
     amount REAL,
     discountCode TEXT,
     status TEXT DEFAULT 'confirmed',
+    cardEncrypted TEXT,
+    iv TEXT,
     FOREIGN KEY(bookingId) REFERENCES Bookings(bookingId),
     FOREIGN KEY(userId) REFERENCES Users(userId)
 )`;

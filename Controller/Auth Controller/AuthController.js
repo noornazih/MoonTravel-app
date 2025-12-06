@@ -194,6 +194,11 @@ const logout = (req, res) => {
     res.clearCookie('session_cookie');
     res.clearCookie('auth_cookie');
     res.clearCookie('persistent_cookie');
+
+    // Log logout event
+    db.run(`INSERT INTO AuthLogs (userId, event, ip) VALUES (?, ?, ?)`,
+        [req.user ? req.user.userId : null, "logout_success", req.ip]);
+
     return res.json({ message: "Logged out successfully!" });
 };
 
